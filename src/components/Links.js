@@ -40,7 +40,7 @@ export const Links = () => {
   }, []);
 
   return (
-    <div>
+    <>
       <div className="col-md-4 p-2">
         <LinkForm {...{ addOrEditLink, currentId, links }} />
       </div>
@@ -76,6 +76,6 @@ export const Links = () => {
           );
         })}
       </div>
-    </div>
+    </>
   );
 };

@@ -3,30 +3,27 @@ import { Link, useHistory } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
 
-function Signup() {
+function Login() {
   const initialStateValue = {
     email: "",
     password: "",
-    passwordConfirm: "",
   };
 
   const [values, setValues] = useState(initialStateValue);
-  const { signup } = useAuth();
+  const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const history = useHistory();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(values);
-    if (values.password !== values.passwordConfirm) {
-      return toast("Password do not math", { type: "error", autoClose: 2000 });
-    }
+
     try {
       setLoading(true);
-      await signup(values.email, values.password);
+      await login(values.email, values.password);
       history.push("/");
     } catch (error) {
-      toast("Filed to create account", { type: "error", autoClose: 2000 });
+      toast("Filed to sign in", { type: "error", autoClose: 2000 });
     }
 
     setLoading(false);
@@ -69,27 +66,14 @@ function Signup() {
               value={values.password}
             />
           </div>
-          <div className="form-group input-group">
-            <div className="input-group-text bg-light">
-              <i className="material-icons">password</i>
-            </div>
-            <input
-              type="password"
-              onChange={handleInputChange}
-              className="form-control"
-              name="passwordConfirm"
-              placeholder="password confirm"
-              required
-              value={values.passwordConfirm}
-            />
-          </div>
-
           <button disabled={loading} className="btn btn-primary btn-block">
-            Sign Up
+            Log In
           </button>
-
           <div className="p-2 text-center">
-            Already have an account? <Link to="/login">Log In</Link>
+            <Link to="/forgot-password">Forgot Password? </Link>
+          </div>
+          <div className="p-2 text-center">
+            Need an account? <Link to="/signup">Sign Up</Link>
           </div>
         </form>
       </div>
@@ -97,4 +81,4 @@ function Signup() {
   );
 }
 
-export default Signup;
+export default Login;

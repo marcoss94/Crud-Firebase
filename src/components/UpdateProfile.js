@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
 
-function Signup() {
+function UpdateProfile() {
   const initialStateValue = {
     email: "",
     password: "",
@@ -11,26 +11,42 @@ function Signup() {
   };
 
   const [values, setValues] = useState(initialStateValue);
-  const { signup } = useAuth();
+  const { currentUser, updateEmail, updatePassword } = useAuth();
   const [loading, setLoading] = useState(false);
   const history = useHistory();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     console.log(values);
     if (values.password !== values.passwordConfirm) {
       return toast("Password do not math", { type: "error", autoClose: 2000 });
     }
-    try {
-      setLoading(true);
-      await signup(values.email, values.password);
-      history.push("/");
-    } catch (error) {
-      toast("Filed to create account", { type: "error", autoClose: 2000 });
+
+    const promises = [];
+    if (values.email !== currentUser.email) {
+      promises.push(updateEmail(values.email));
+    }
+    if (values.password) {
+      promises.push(updatePassword(values.password));
     }
 
-    setLoading(false);
+    Promise.all(promises)
+      .then(() => {
+        history.push("/");
+      })
+      .catch(() => {
+        toast("Failed to update account", { type: "error", autoClose: 2000 });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
+
+  useEffect(() => {
+    if (currentUser) {
+      setValues({ ...values, email: currentUser.email });
+    }
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -64,8 +80,7 @@ function Signup() {
               onChange={handleInputChange}
               className="form-control"
               name="password"
-              placeholder="password"
-              required
+              placeholder="Leave blank to keep the same"
               value={values.password}
             />
           </div>
@@ -78,18 +93,17 @@ function Signup() {
               onChange={handleInputChange}
               className="form-control"
               name="passwordConfirm"
-              placeholder="password confirm"
-              required
+              placeholder="Leave blank to keep the same"
               value={values.passwordConfirm}
             />
           </div>
 
           <button disabled={loading} className="btn btn-primary btn-block">
-            Sign Up
+            Update
           </button>
 
           <div className="p-2 text-center">
-            Already have an account? <Link to="/login">Log In</Link>
+            <Link to="/">Cancel</Link>
           </div>
         </form>
       </div>
@@ -97,4 +111,4 @@ function Signup() {
   );
 }
 
-export default Signup;
+export default UpdateProfile;
